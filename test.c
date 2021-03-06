@@ -59,9 +59,7 @@ void* eat(void *args) {
 
         pthread_mutex_lock(&entry_point);
         pthread_mutex_lock(&table->forks[philosopher->left_fork]);
-        rand_s(&rand);
-        rand %= 1000;
-        Sleep(rand);
+        Sleep(1000);
         pthread_mutex_lock(&table->forks[philosopher->right_fork]);
         pthread_mutex_unlock(&entry_point);
 
@@ -74,7 +72,7 @@ void* eat(void *args) {
     } while (1);
 }
 
-void main() {
+int main() {
     pthread_t threads[PHT_SIZE];
     philosopher_t philosophers[PHT_SIZE];
     philosopher_args_t arguments[PHT_SIZE];
@@ -101,4 +99,5 @@ void main() {
     for (i = 0; i < PHT_SIZE; i++) {
         pthread_join(threads[i], NULL);
     }
+    return (0);
 }

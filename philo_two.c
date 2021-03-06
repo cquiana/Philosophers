@@ -1,7 +1,19 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   philo_two.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: cquiana <marvin@42.fr>                     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/03/01 19:57:18 by cquiana           #+#    #+#             */
+/*   Updated: 2021/03/06 18:31:43 by cquiana          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 # include <stdio.h>
 # include <unistd.h>
 # include <stdlib.h>
-# include <string.h>
+# include <semaphore.h>
 # include <pthread.h>
 # include <sys/time.h>
 
@@ -18,11 +30,15 @@ typedef struct		s_data
 	int				dead;
 	int				total_eat;
 	long			start_time;
-	pthread_mutex_t	*forks;
-	pthread_mutex_t	dead_mutex;
-	pthread_mutex_t	eat_mutex;
-	pthread_mutex_t	print_mutex;
 }					t_data;
+
+typedef struct		s_semaphore
+{
+	sem_t			*fork;
+	sem_t			*dead_sem;
+	sem_t			*eat_sem;
+	sem_t			*print_sem;
+}					t_semaphore;
 
 typedef struct		s_status
 {
@@ -42,6 +58,7 @@ typedef struct		s_philo
 	long			last_eat_time;
 	pthread_t		thread;
 	t_data			*data;
+	t_semaphore		semaph;
 	t_status		status;
 }					t_phil;
 
@@ -388,12 +405,8 @@ int		main(int ac, char **av)
 	if (!(phil = malloc(sizeof(t_phil) * data.count)))
 		print_error("Malloc error!\n");
 	start_dinning(&data, phil);
-	clear_after_dinning(&data, phil);
+	ft_close(phil);
 
 	// printf("%d %ld %d %d\n", data.count, data.die_time, data.eat_time, data.sleep_time);
 	return (0);
 }
-
-	// gettimeofday(&tv, NULL);
-	// x = tv.tv_sec * 1000L + tv.tv_usec / 1000L;
-	// printf("x = %ld\n", x);
