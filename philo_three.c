@@ -6,7 +6,7 @@
 /*   By: cquiana <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/06 17:24:57 by cquiana           #+#    #+#             */
-/*   Updated: 2021/03/07 13:38:31 by cquiana          ###   ########.fr       */
+/*   Updated: 2021/03/07 19:14:22 by cquiana          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 # include <semaphore.h>
 # include <pthread.h>
 # include <sys/time.h>
+# include <signal.h>
 
 #define TRUE	1
 #define FALSE	0
@@ -178,7 +179,7 @@ int		check_max_eat(t_phil *phil)
 	return (0);
 }
 
-void	print_status(t_phil *phil, long time)
+int		print_status(t_phil *phil, long time)
 {
 	long	diff;
 
@@ -195,7 +196,11 @@ void	print_status(t_phil *phil, long time)
 	if (phil->status.think)
 		printf("%10ld %d is thinking\n", diff, phil->id + 1);
 	if (phil->status.dead)
+	{
 		printf("%10ld %d is dead\n", diff, phil->id + 1);
+		return (1);
+	}
+	return (0);
 }
 void	reset_philo_status(t_phil *phil)
 {
@@ -209,12 +214,16 @@ void	reset_philo_status(t_phil *phil)
 int		display(t_phil *phil, long time)
 {
 	sem_wait(phil->semaph->print_sem);
-	if ((!(phil->status.dead) && check_dead(phil, time)) || check_max_eat(phil))
+	// if ((!(phil->status.dead) && check_dead(phil, time)) || check_max_eat(phil))
+
+	if ((!(phil->status.dead) && check_dead(phil, time)))
+	// if (phil->data->dead)
 	{
 		sem_post(phil->semaph->print_sem);
 		return (1);
 	}
-	print_status(phil, time);
+	if (print_status(phil, time))
+		return (1);
 	reset_philo_status(phil);
 	sem_post(phil->semaph->print_sem);
 	return (0);
@@ -225,8 +234,9 @@ void	someone_dead(t_phil *phil, long time)
 	if (phil->data->dead == 0)
 	{
 		phil->status.dead = TRUE;
+		phil->data->dead = TRUE;
 		display(phil, time);
-		phil->data->dead++;
+		exit(1);
 	}
 }
 
@@ -236,10 +246,10 @@ void	*monitoring(void *agrs)
 	long	current;
 
 	phil = (t_phil *)agrs;
-	while (TRUE)
+	while (phil->meals != phil->data->max_eat)
 	{
-		if (phil->meals == phil->data->max_eat)
-			break ;
+		// if (phil->meals == phil->data->max_eat)
+		// 	break ;
 		current = current_time();
 		if (current - phil->last_eat_time > phil->data->die_time)
 		{
@@ -255,7 +265,7 @@ void	*monitoring(void *agrs)
 
 int		check_total_eat(t_phil *phil)
 {
-	if (phil->data->max_eat != -1 && phil->meals == phil->data->max_eat)
+	if (phil->meals == phil->data->max_eat)
 	{
 		phil->data->total_eat++;
 		sem_post(phil->semaph->eat_sem);
@@ -280,22 +290,21 @@ int		table(t_phil *phil)
 	sem_post(phil->semaph->fork);
 	sem_post(phil->semaph->fork);
 	phil->meals++;
-	sem_wait(phil->semaph->eat_sem);
-	if (check_total_eat(phil))
-		return (1);
-	sem_post(phil->semaph->eat_sem);
+	// sem_wait(phil->semaph->eat_sem);
+	// if (check_total_eat(phil))
+	// 	return (1);
+	// sem_post(phil->semaph->eat_sem);
 	return (0);
 }
 
-void	*symposium(void *args)
+void	*symposium(t_phil *phil)
 {
-	t_phil		*phil;
 	pthread_t	waiter;
 
-	phil = (t_phil *)args;
 	phil->last_eat_time = current_time();
 	pthread_create(&waiter, NULL, monitoring, phil);
-	while (TRUE)
+	// while (TRUE)
+	while (phil->meals != phil->data->max_eat)
 	{
 		if (table(phil))
 			break ;
@@ -314,22 +323,32 @@ void	*symposium(void *args)
 void	create_procces(t_phil *phil)
 {
 	int		i;
+	int		status;
 
 	i = 0;
 	while (i < phil->data->count)
 	{
-		phil[i].pid = fork();
-		if (phil[i].pid == -1)
+		if ((phil[i].pid = fork()) == -1)
 		{
 			print_error("Fork error!\n");
 			return ;
 		}
-		if (phil[i].pid != 0)
-			break ;
-		printf("pid = %d from child i = %d\n", phil[i].pid, i);
+		else if (phil[i].pid == 0)
+		{
+			symposium(&phil[i]);
+			exit (0);
+		}
+		// printf("pid = %d from child i = %d\n", phil[i].pid, i);
 		i++;
 	}
-	printf("i from main = %d\n", i);
+	waitpid(-1, &status, 0);
+	i = 0;
+	while (i < phil->data->count)
+	{
+		kill(phil[i].pid, SIGKILL);
+		i++;
+	}
+	// printf("pid = %d from main i = %d\n", phil[i].pid, i);
 }
 
 void	set_philo_status(t_phil *phil, int i)
@@ -420,7 +439,7 @@ int		main(int ac, char **av)
 	if (!(phil = malloc(sizeof(t_phil) * data.count)))
 		print_error("Malloc error!\n");
 	start_dinning(&data, phil, &sem);
-	// clear_after_dinning(phil, &sem);
+	clear_after_dinning(phil, &sem);
 
 	// printf("%d %ld %d %d\n", data.count, data.die_time, data.eat_time, data.sleep_time);
 	return (0);
