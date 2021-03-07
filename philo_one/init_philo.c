@@ -6,7 +6,7 @@
 /*   By: cquiana <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/07 20:33:46 by cquiana           #+#    #+#             */
-/*   Updated: 2021/03/07 21:35:14 by cquiana          ###   ########.fr       */
+/*   Updated: 2021/03/07 22:11:25 by cquiana          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,8 @@ static void	create_threads(t_phil *phil)
 	while (i < phil->data->count)
 	{
 		phil[i].last_eat_time = current_time();
-		pthread_create(&phil[i].thread, NULL, symposium, &phil[i]);
+		if ((pthread_create(&phil[i].thread, NULL, symposium, &phil[i])) != 0)
+			print_error("Thread create error!\n");
 		i++;
 	}
 	i = 0;

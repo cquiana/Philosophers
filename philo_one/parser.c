@@ -6,13 +6,13 @@
 /*   By: cquiana <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/07 20:30:57 by cquiana           #+#    #+#             */
-/*   Updated: 2021/03/07 22:04:43 by cquiana          ###   ########.fr       */
+/*   Updated: 2021/03/07 22:11:39 by cquiana          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo_one.h"
 
-int		check_agrs(char **av)
+int			check_agrs(char **av)
 {
 	int	i;
 	int	j;
