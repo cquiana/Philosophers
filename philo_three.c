@@ -6,14 +6,14 @@
 /*   By: cquiana <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/06 17:24:57 by cquiana           #+#    #+#             */
-/*   Updated: 2021/03/06 18:08:05 by cquiana          ###   ########.fr       */
+/*   Updated: 2021/03/07 13:38:31 by cquiana          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 # include <stdio.h>
 # include <unistd.h>
 # include <stdlib.h>
-# include <string.h>
+# include <semaphore.h>
 # include <pthread.h>
 # include <sys/time.h>
 
@@ -30,11 +30,16 @@ typedef struct		s_data
 	int				dead;
 	int				total_eat;
 	long			start_time;
-	pthread_mutex_t	*forks;
-	pthread_mutex_t	dead_mutex;
-	pthread_mutex_t	eat_mutex;
-	pthread_mutex_t	print_mutex;
 }					t_data;
+
+typedef struct		s_semaphore
+{
+	sem_t			*fork;
+	sem_t			*hands;
+	sem_t			*dead_sem;
+	sem_t			*eat_sem;
+	sem_t			*print_sem;
+}					t_semaphore;
 
 typedef struct		s_status
 {
@@ -52,8 +57,9 @@ typedef struct		s_philo
 	int				right_fork;
 	int				meals;
 	long			last_eat_time;
-	pthread_t		thread;
+	pid_t			pid;
 	t_data			*data;
+	t_semaphore		*semaph;
 	t_status		status;
 }					t_phil;
 
@@ -92,7 +98,6 @@ int	ft_atoi(const char *str)
 void	print_error(char *str)
 {
 	printf("%s", str);
-	exit(0);
 }
 
 int		check_args(t_data *data)
@@ -135,12 +140,6 @@ long	current_time(void)
 	return (res);
 }
 
-void	init_forks(t_data *data)
-{
-	if (!(data->forks = malloc(sizeof(pthread_mutex_t) * data->count)))
-		print_error("Malloc error!\n");
-}
-
 void	ft_mysleep(long time)
 {
 	long	start;
@@ -155,13 +154,13 @@ int		check_dead(t_phil *phil, long time)
 	long	diff;
 
 	diff = time - phil->last_eat_time;
-	pthread_mutex_lock(&phil->data->dead_mutex);
+	sem_wait(phil->semaph->dead_sem);
 	if ((phil->data->dead) || diff > phil->data->die_time)
 	{
-		pthread_mutex_unlock(&phil->data->dead_mutex);
+		sem_post(phil->semaph->dead_sem);
 		return (1);
 	}
-	pthread_mutex_unlock(&phil->data->dead_mutex);
+	sem_post(phil->semaph->dead_sem);
 	return (0);
 }
 
@@ -169,13 +168,13 @@ int		check_max_eat(t_phil *phil)
 {
 	if (phil->data->max_eat == -1)
 		return (0);
-	pthread_mutex_lock(&phil->data->eat_mutex);
+	sem_wait(phil->semaph->eat_sem);
 	if (phil->data->total_eat == phil->data->count)
 	{
-		pthread_mutex_unlock(&phil->data->eat_mutex);
+		sem_post(phil->semaph->eat_sem);
 		return (1);
 	}
-	pthread_mutex_unlock(&phil->data->eat_mutex);
+	sem_post(phil->semaph->eat_sem);
 	return (0);
 }
 
@@ -200,24 +199,24 @@ void	print_status(t_phil *phil, long time)
 }
 void	reset_philo_status(t_phil *phil)
 {
-	phil->status.fork = 0;
-	phil->status.eat = 0;
-	phil->status.sleep = 0;
-	phil->status.think = 0;
-	phil->status.dead = 0;
+	phil->status.fork = FALSE;
+	phil->status.eat = FALSE;
+	phil->status.sleep = FALSE;
+	phil->status.think = FALSE;
+	phil->status.dead = FALSE;
 }
 
 int		display(t_phil *phil, long time)
 {
-	pthread_mutex_lock(&phil->data->print_mutex);
+	sem_wait(phil->semaph->print_sem);
 	if ((!(phil->status.dead) && check_dead(phil, time)) || check_max_eat(phil))
 	{
-		pthread_mutex_unlock(&phil->data->print_mutex);
+		sem_post(phil->semaph->print_sem);
 		return (1);
 	}
 	print_status(phil, time);
 	reset_philo_status(phil);
-	pthread_mutex_unlock(&phil->data->print_mutex);
+	sem_post(phil->semaph->print_sem);
 	return (0);
 }
 
@@ -244,9 +243,9 @@ void	*monitoring(void *agrs)
 		current = current_time();
 		if (current - phil->last_eat_time > phil->data->die_time)
 		{
-			pthread_mutex_lock(&phil->data->dead_mutex);
+			sem_wait(phil->semaph->dead_sem);
 			someone_dead(phil, current);
-			pthread_mutex_unlock(&phil->data->dead_mutex);
+			sem_post(phil->semaph->dead_sem);
 			return (NULL);
 		}
 		ft_mysleep(1);
@@ -259,7 +258,7 @@ int		check_total_eat(t_phil *phil)
 	if (phil->data->max_eat != -1 && phil->meals == phil->data->max_eat)
 	{
 		phil->data->total_eat++;
-		pthread_mutex_unlock(&phil->data->eat_mutex);
+		sem_post(phil->semaph->eat_sem);
 		return (1);
 	}
 	return (0);
@@ -267,22 +266,24 @@ int		check_total_eat(t_phil *phil)
 
 int		table(t_phil *phil)
 {
-	pthread_mutex_lock(&phil->data->forks[phil->left_fork]);
+	sem_wait(phil->semaph->hands);
+	sem_wait(phil->semaph->fork);
 	phil->status.fork = TRUE;
 	display(phil, current_time());
-	pthread_mutex_lock(&phil->data->forks[phil->right_fork]);
+	sem_wait(phil->semaph->fork);
 	phil->status.fork = TRUE;
 	display(phil, current_time());
 	phil->status.eat = TRUE;
 	display(phil, current_time());
 	ft_mysleep(phil->data->eat_time);
-	pthread_mutex_unlock(&phil->data->forks[phil->left_fork]);
-	pthread_mutex_unlock(&phil->data->forks[phil->right_fork]);
+	sem_post(phil->semaph->hands);
+	sem_post(phil->semaph->fork);
+	sem_post(phil->semaph->fork);
 	phil->meals++;
-	pthread_mutex_lock(&phil->data->eat_mutex);
+	sem_wait(phil->semaph->eat_sem);
 	if (check_total_eat(phil))
 		return (1);
-	pthread_mutex_unlock(&phil->data->eat_mutex);
+	sem_post(phil->semaph->eat_sem);
 	return (0);
 }
 
@@ -292,8 +293,7 @@ void	*symposium(void *args)
 	pthread_t	waiter;
 
 	phil = (t_phil *)args;
-	if (phil->id % 2 == 0)
-		ft_mysleep(1);
+	phil->last_eat_time = current_time();
 	pthread_create(&waiter, NULL, monitoring, phil);
 	while (TRUE)
 	{
@@ -311,86 +311,106 @@ void	*symposium(void *args)
 	return (NULL);
 }
 
-void	create_threads(t_phil *phil)
+void	create_procces(t_phil *phil)
 {
 	int		i;
 
 	i = 0;
 	while (i < phil->data->count)
 	{
-		phil[i].last_eat_time = current_time();
-		pthread_create(&phil[i].thread, NULL, symposium, &phil[i]);
+		phil[i].pid = fork();
+		if (phil[i].pid == -1)
+		{
+			print_error("Fork error!\n");
+			return ;
+		}
+		if (phil[i].pid != 0)
+			break ;
+		printf("pid = %d from child i = %d\n", phil[i].pid, i);
 		i++;
 	}
-	i = 0;
-	while (i < phil->data->count)
-	{
-		pthread_join(phil[i].thread, NULL);
-		i++;
-	}
+	printf("i from main = %d\n", i);
 }
 
 void	set_philo_status(t_phil *phil, int i)
 {
-	phil[i].status.fork = 0;
-	phil[i].status.eat = 0;
-	phil[i].status.sleep = 0;
-	phil[i].status.think = 0;
-	phil[i].status.dead = 0;
+	phil[i].status.fork = FALSE;
+	phil[i].status.eat = FALSE;
+	phil[i].status.sleep = FALSE;
+	phil[i].status.think = FALSE;
+	phil[i].status.dead = FALSE;
 }
 
-void	init_mutex(t_data *data)
+int		init_semaphors(t_data *data, t_semaphore *sem)
 {
-	pthread_mutex_init(&data->dead_mutex, NULL);
-	pthread_mutex_init(&data->eat_mutex, NULL);
-	pthread_mutex_init(&data->print_mutex, NULL);
+	if ((sem->fork = sem_open("/forks_sem",
+		O_CREAT | O_EXCL, 0644, data->count)) == SEM_FAILED)
+		return (1);
+	if ((sem->hands = sem_open("/hands_sem",
+		O_CREAT | O_EXCL, 0644, data->count / 2)) == SEM_FAILED)
+		return (1);
+	if ((sem->eat_sem = sem_open("/eat_sem",
+		O_CREAT | O_EXCL, 0644, 1)) == SEM_FAILED)
+		return (1);
+	if ((sem->dead_sem = sem_open("/dead_sem",
+		O_CREAT | O_EXCL, 0644, 1)) == SEM_FAILED)
+		return (1);
+	if ((sem->print_sem = sem_open("/print_sem",
+		O_CREAT | O_EXCL, 0644, 1)) == SEM_FAILED)
+		return (1);
+	return (0);
 }
 
-void	start_dinning(t_data *data, t_phil *phil)
+void	unlink_sem(void)
+{
+	sem_unlink("/forks_sem");
+	sem_unlink("/hands_sem");
+	sem_unlink("/eat_sem");
+	sem_unlink("/dead_sem");
+	sem_unlink("/print_sem");
+}
+
+void	start_dinning(t_data *data, t_phil *phil, t_semaphore *sem)
 {
 	int		i;
 
 	i = 0;
-	init_forks(data);
 	while (i < data->count)
 	{
 		phil[i].id = i;
 		phil[i].meals = 0;
 		set_philo_status(phil, i);
-		if (i == 0)
-			phil[i].left_fork = data->count - 1;
-		else
-			phil[i].left_fork = i - 1;
-		phil[i].right_fork = i;
-		pthread_mutex_init(&data->forks[i], NULL);
 		phil[i].data = data;
+		phil[i].semaph = sem;
 		i++;
 	}
-	init_mutex(data);
+	if (init_semaphors(data, sem))
+	{
+		free(phil);
+		print_error("Semaphore error!\n");
+	}
+	unlink_sem();
 	data->dead = 0;
 	data->total_eat = 0;
 	data->start_time = current_time();
-	create_threads(phil);
+	create_procces(phil);
 }
 
-void	clear_after_dinning(t_data *data, t_phil *phil)
+void	clear_after_dinning(t_phil *phil, t_semaphore *sem)
 {
-	int		i;
-
-	i = 0;
-	while (i < data->count)
-		pthread_mutex_destroy(&data->forks[i++]);
-	pthread_mutex_destroy(&data->dead_mutex);
-	pthread_mutex_destroy(&data->eat_mutex);
-	pthread_mutex_destroy(&data->print_mutex);
-	free(data->forks);
+	sem_close(sem->fork);
+	sem_close(sem->eat_sem);
+	sem_close(sem->dead_sem);
+	sem_close(sem->print_sem);
+	sem_close(sem->hands);
 	free(phil);
 }
 
 int		main(int ac, char **av)
 {
-	t_data	data;
-	t_phil	*phil;
+	t_data		data;
+	t_phil		*phil;
+	t_semaphore	sem;
 
 	if (ac != 5 && ac != 6)
 		print_error("Wrong arguments!\n");
@@ -399,13 +419,9 @@ int		main(int ac, char **av)
 		print_error("Incorrect arguments count!\n");
 	if (!(phil = malloc(sizeof(t_phil) * data.count)))
 		print_error("Malloc error!\n");
-	start_dinning(&data, phil);
-	clear_after_dinning(&data, phil);
+	start_dinning(&data, phil, &sem);
+	// clear_after_dinning(phil, &sem);
 
 	// printf("%d %ld %d %d\n", data.count, data.die_time, data.eat_time, data.sleep_time);
 	return (0);
 }
-
-	// gettimeofday(&tv, NULL);
-	// x = tv.tv_sec * 1000L + tv.tv_usec / 1000L;
-	// printf("x = %ld\n", x);
