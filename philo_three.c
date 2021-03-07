@@ -6,7 +6,7 @@
 /*   By: cquiana <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/06 17:24:57 by cquiana           #+#    #+#             */
-/*   Updated: 2021/03/07 19:14:22 by cquiana          ###   ########.fr       */
+/*   Updated: 2021/03/07 19:30:42 by cquiana          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ typedef struct		s_semaphore
 	sem_t			*fork;
 	sem_t			*hands;
 	sem_t			*dead_sem;
-	sem_t			*eat_sem;
+	// sem_t			*eat_sem;
 	sem_t			*print_sem;
 }					t_semaphore;
 
@@ -107,9 +107,9 @@ int		check_args(t_data *data)
 		return (0);
 	if (data->die_time < 0)
 		return (0);
-	if (data->sleep_time < 0)
+	if (data->sleep_time < 60)
 		return (0);
-	if (data->eat_time < 0)
+	if (data->eat_time < 60)
 		return (0);
 	return (1);
 }
@@ -165,19 +165,19 @@ int		check_dead(t_phil *phil, long time)
 	return (0);
 }
 
-int		check_max_eat(t_phil *phil)
-{
-	if (phil->data->max_eat == -1)
-		return (0);
-	sem_wait(phil->semaph->eat_sem);
-	if (phil->data->total_eat == phil->data->count)
-	{
-		sem_post(phil->semaph->eat_sem);
-		return (1);
-	}
-	sem_post(phil->semaph->eat_sem);
-	return (0);
-}
+// int		check_max_eat(t_phil *phil)
+// {
+// 	if (phil->data->max_eat == -1)
+// 		return (0);
+// 	sem_wait(phil->semaph->eat_sem);
+// 	if (phil->data->total_eat == phil->data->count)
+// 	{
+// 		sem_post(phil->semaph->eat_sem);
+// 		return (1);
+// 	}
+// 	sem_post(phil->semaph->eat_sem);
+// 	return (0);
+// }
 
 int		print_status(t_phil *phil, long time)
 {
@@ -263,16 +263,16 @@ void	*monitoring(void *agrs)
 	return (NULL);
 }
 
-int		check_total_eat(t_phil *phil)
-{
-	if (phil->meals == phil->data->max_eat)
-	{
-		phil->data->total_eat++;
-		sem_post(phil->semaph->eat_sem);
-		return (1);
-	}
-	return (0);
-}
+// int		check_total_eat(t_phil *phil)
+// {
+// 	if (phil->meals == phil->data->max_eat)
+// 	{
+// 		phil->data->total_eat++;
+// 		sem_post(phil->semaph->eat_sem);
+// 		return (1);
+// 	}
+// 	return (0);
+// }
 
 int		table(t_phil *phil)
 {
@@ -368,9 +368,9 @@ int		init_semaphors(t_data *data, t_semaphore *sem)
 	if ((sem->hands = sem_open("/hands_sem",
 		O_CREAT | O_EXCL, 0644, data->count / 2)) == SEM_FAILED)
 		return (1);
-	if ((sem->eat_sem = sem_open("/eat_sem",
-		O_CREAT | O_EXCL, 0644, 1)) == SEM_FAILED)
-		return (1);
+	// if ((sem->eat_sem = sem_open("/eat_sem",
+	// 	O_CREAT | O_EXCL, 0644, 1)) == SEM_FAILED)
+		// return (1);
 	if ((sem->dead_sem = sem_open("/dead_sem",
 		O_CREAT | O_EXCL, 0644, 1)) == SEM_FAILED)
 		return (1);
@@ -384,7 +384,7 @@ void	unlink_sem(void)
 {
 	sem_unlink("/forks_sem");
 	sem_unlink("/hands_sem");
-	sem_unlink("/eat_sem");
+	// sem_unlink("/eat_sem");
 	sem_unlink("/dead_sem");
 	sem_unlink("/print_sem");
 }
@@ -418,7 +418,7 @@ void	start_dinning(t_data *data, t_phil *phil, t_semaphore *sem)
 void	clear_after_dinning(t_phil *phil, t_semaphore *sem)
 {
 	sem_close(sem->fork);
-	sem_close(sem->eat_sem);
+	// sem_close(sem->eat_sem);
 	sem_close(sem->dead_sem);
 	sem_close(sem->print_sem);
 	sem_close(sem->hands);
