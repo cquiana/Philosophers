@@ -5,29 +5,29 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: cquiana <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/03/07 20:37:24 by cquiana           #+#    #+#             */
-/*   Updated: 2021/03/07 22:42:03 by cquiana          ###   ########.fr       */
+/*   Created: 2021/03/07 22:29:35 by cquiana           #+#    #+#             */
+/*   Updated: 2021/03/07 22:41:42 by cquiana          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philo_one.h"
+#include "philo_two.h"
 
-static void	someone_dead(t_phil *phil, long time)
+void	someone_dead(t_phil *phil, long time)
 {
 	if (phil->data->dead == 0)
 	{
 		phil->status.dead = TRUE;
 		display(phil, time);
-		phil->data->dead++;
+		phil->data->dead = TRUE;
 	}
 }
 
-static int	check_total_eat(t_phil *phil)
+int		check_total_eat(t_phil *phil)
 {
 	if (phil->data->max_eat != -1 && phil->meals == phil->data->max_eat)
 	{
 		phil->data->total_eat++;
-		pthread_mutex_unlock(&phil->data->eat_mutex);
+		sem_post(phil->semaph->eat_sem);
 		return (1);
 	}
 	return (0);
@@ -46,9 +46,9 @@ static void	*monitoring(void *agrs)
 		current = current_time();
 		if (current - phil->last_eat_time > phil->data->die_time)
 		{
-			pthread_mutex_lock(&phil->data->dead_mutex);
+			sem_wait(phil->semaph->dead_sem);
 			someone_dead(phil, current);
-			pthread_mutex_unlock(&phil->data->dead_mutex);
+			sem_post(phil->semaph->dead_sem);
 			return (NULL);
 		}
 		ft_mysleep(1);
@@ -56,35 +56,35 @@ static void	*monitoring(void *agrs)
 	return (NULL);
 }
 
-static int	table(t_phil *phil)
+int		table(t_phil *phil)
 {
-	pthread_mutex_lock(&phil->data->forks[phil->left_fork]);
+	sem_wait(phil->semaph->hands);
+	sem_wait(phil->semaph->fork);
 	phil->status.fork = TRUE;
 	display(phil, current_time());
-	pthread_mutex_lock(&phil->data->forks[phil->right_fork]);
+	sem_wait(phil->semaph->fork);
 	phil->status.fork = TRUE;
 	display(phil, current_time());
 	phil->status.eat = TRUE;
 	display(phil, current_time());
 	ft_mysleep(phil->data->eat_time);
-	pthread_mutex_unlock(&phil->data->forks[phil->left_fork]);
-	pthread_mutex_unlock(&phil->data->forks[phil->right_fork]);
+	sem_post(phil->semaph->hands);
+	sem_post(phil->semaph->fork);
+	sem_post(phil->semaph->fork);
 	phil->meals++;
-	pthread_mutex_lock(&phil->data->eat_mutex);
+	sem_wait(phil->semaph->eat_sem);
 	if (check_total_eat(phil))
 		return (1);
-	pthread_mutex_unlock(&phil->data->eat_mutex);
+	sem_post(phil->semaph->eat_sem);
 	return (0);
 }
 
-void		*symposium(void *args)
+void	*symposium(void *args)
 {
 	t_phil		*phil;
 	pthread_t	waiter;
 
 	phil = (t_phil *)args;
-	if (phil->id % 2 == 0)
-		ft_mysleep(1);
 	if ((pthread_create(&waiter, NULL, monitoring, phil)) != 0)
 		print_error("Thread create error!\n");
 	while (TRUE)

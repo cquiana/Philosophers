@@ -6,7 +6,7 @@
 /*   By: cquiana <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/07 20:20:03 by cquiana           #+#    #+#             */
-/*   Updated: 2021/03/07 22:04:59 by cquiana          ###   ########.fr       */
+/*   Updated: 2021/03/07 22:21:14 by cquiana          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,6 @@
 # include <stdio.h>
 # include <unistd.h>
 # include <stdlib.h>
-# include <string.h>
 # include <pthread.h>
 # include <sys/time.h>
 
