@@ -6,7 +6,7 @@
 /*   By: cquiana <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/08 19:04:03 by cquiana           #+#    #+#             */
-/*   Updated: 2021/03/08 19:07:07 by cquiana          ###   ########.fr       */
+/*   Updated: 2021/03/08 19:18:24 by cquiana          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ static void	create_procces(t_phil *phil)
 		else if (phil[i].pid == 0)
 		{
 			symposium(&phil[i]);
-			exit (0);
+			exit(0);
 		}
 		i++;
 	}

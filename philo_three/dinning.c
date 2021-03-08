@@ -6,7 +6,7 @@
 /*   By: cquiana <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/08 19:01:38 by cquiana           #+#    #+#             */
-/*   Updated: 2021/03/08 19:13:11 by cquiana          ###   ########.fr       */
+/*   Updated: 2021/03/08 19:18:40 by cquiana          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,10 +39,6 @@ static int	table(t_phil *phil)
 	sem_post(phil->semaph->fork);
 	sem_post(phil->semaph->fork);
 	phil->meals++;
-	// sem_wait(phil->semaph->eat_sem);
-	// if (check_total_eat(phil))
-	// 	return (1);
-	// sem_post(phil->semaph->eat_sem);
 	return (0);
 }
 
@@ -73,7 +69,6 @@ void		*symposium(t_phil *phil)
 
 	phil->last_eat_time = current_time();
 	pthread_create(&waiter, NULL, monitoring, phil);
-
 	while (phil->meals != phil->data->max_eat)
 	{
 		if (table(phil))

@@ -6,7 +6,7 @@
 /*   By: cquiana <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/07 20:20:43 by cquiana           #+#    #+#             */
-/*   Updated: 2021/03/08 19:08:05 by cquiana          ###   ########.fr       */
+/*   Updated: 2021/03/08 19:18:59 by cquiana          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,6 @@ typedef struct		s_philo
 	t_semaphore		*semaph;
 	t_status		status;
 }					t_phil;
-
 
 int					ft_atoi(const char *str);
 int					ft_isdigit(int c);
