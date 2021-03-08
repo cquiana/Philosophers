@@ -6,7 +6,7 @@
 /*   By: cquiana <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/07 22:25:42 by cquiana           #+#    #+#             */
-/*   Updated: 2021/03/07 22:27:12 by cquiana          ###   ########.fr       */
+/*   Updated: 2021/03/07 23:10:06 by cquiana          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,11 +45,11 @@ static int	validate_args(t_data *data)
 {
 	if (data->count < 2 || data->count > 200)
 		return (0);
-	if (data->die_time < 0)
+	if (data->die_time < 60)
 		return (0);
-	if (data->sleep_time < 0)
+	if (data->sleep_time < 60)
 		return (0);
-	if (data->eat_time < 0)
+	if (data->eat_time < 60)
 		return (0);
 	return (1);
 }

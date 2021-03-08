@@ -1,17 +1,17 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   philo_two.h                                        :+:      :+:    :+:   */
+/*   philo_three.h                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: cquiana <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/03/07 20:20:49 by cquiana           #+#    #+#             */
-/*   Updated: 2021/03/07 22:57:45 by cquiana          ###   ########.fr       */
+/*   Created: 2021/03/07 20:20:43 by cquiana           #+#    #+#             */
+/*   Updated: 2021/03/08 19:08:05 by cquiana          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef PHILO_TWO_H
-# define PHILO_TWO_H
+#ifndef PHILO_THREE_H
+# define PHILO_THREE_H
 
 # include <stdio.h>
 # include <unistd.h>
@@ -19,6 +19,7 @@
 # include <semaphore.h>
 # include <pthread.h>
 # include <sys/time.h>
+# include <signal.h>
 
 # define TRUE	1
 # define FALSE	0
@@ -40,7 +41,6 @@ typedef struct		s_semaphore
 	sem_t			*fork;
 	sem_t			*hands;
 	sem_t			*dead_sem;
-	sem_t			*eat_sem;
 	sem_t			*print_sem;
 }					t_semaphore;
 
@@ -60,11 +60,12 @@ typedef struct		s_philo
 	int				right_fork;
 	int				meals;
 	long			last_eat_time;
-	pthread_t		thread;
+	pid_t			pid;
 	t_data			*data;
 	t_semaphore		*semaph;
 	t_status		status;
 }					t_phil;
+
 
 int					ft_atoi(const char *str);
 int					ft_isdigit(int c);
@@ -73,12 +74,11 @@ int					check_agrs(char **av);
 int					parse_args(t_data *data, char **av);
 long				current_time(void);
 void				start_dinning(t_data *data, t_phil *phil, t_semaphore *sem);
-void				*symposium(void *args);
+void				*symposium(t_phil *phil);
 void				ft_mysleep(long time);
 int					display(t_phil *phil, long time);
-int					check_max_eat(t_phil *phil);
 int					check_dead(t_phil *phil, long time);
 void				unlink_sem(void);
-void				clear_after_dinning(t_phil *phil);
+void				clear_after_dinning(t_phil *phil, t_semaphore *sem);
 
 #endif

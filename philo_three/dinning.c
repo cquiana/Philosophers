@@ -5,55 +5,22 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: cquiana <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/03/07 22:29:35 by cquiana           #+#    #+#             */
-/*   Updated: 2021/03/07 22:56:28 by cquiana          ###   ########.fr       */
+/*   Created: 2021/03/08 19:01:38 by cquiana           #+#    #+#             */
+/*   Updated: 2021/03/08 19:13:11 by cquiana          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philo_two.h"
+#include "philo_three.h"
 
 static void	someone_dead(t_phil *phil, long time)
 {
 	if (phil->data->dead == 0)
 	{
 		phil->status.dead = TRUE;
-		display(phil, time);
 		phil->data->dead = TRUE;
+		display(phil, time);
+		exit(1);
 	}
-}
-
-static int	check_total_eat(t_phil *phil)
-{
-	if (phil->data->max_eat != -1 && phil->meals == phil->data->max_eat)
-	{
-		phil->data->total_eat++;
-		sem_post(phil->semaph->eat_sem);
-		return (1);
-	}
-	return (0);
-}
-
-static void	*monitoring(void *agrs)
-{
-	t_phil	*phil;
-	long	current;
-
-	phil = (t_phil *)agrs;
-	while (TRUE)
-	{
-		if (phil->meals == phil->data->max_eat)
-			break ;
-		current = current_time();
-		if (current - phil->last_eat_time > phil->data->die_time)
-		{
-			sem_wait(phil->semaph->dead_sem);
-			someone_dead(phil, current);
-			sem_post(phil->semaph->dead_sem);
-			return (NULL);
-		}
-		ft_mysleep(1);
-	}
-	return (NULL);
 }
 
 static int	table(t_phil *phil)
@@ -72,22 +39,42 @@ static int	table(t_phil *phil)
 	sem_post(phil->semaph->fork);
 	sem_post(phil->semaph->fork);
 	phil->meals++;
-	sem_wait(phil->semaph->eat_sem);
-	if (check_total_eat(phil))
-		return (1);
-	sem_post(phil->semaph->eat_sem);
+	// sem_wait(phil->semaph->eat_sem);
+	// if (check_total_eat(phil))
+	// 	return (1);
+	// sem_post(phil->semaph->eat_sem);
 	return (0);
 }
 
-void		*symposium(void *args)
+static void	*monitoring(void *agrs)
 {
-	t_phil		*phil;
+	t_phil	*phil;
+	long	current;
+
+	phil = (t_phil *)agrs;
+	while (phil->meals != phil->data->max_eat)
+	{
+		current = current_time();
+		if (current - phil->last_eat_time > phil->data->die_time)
+		{
+			sem_wait(phil->semaph->dead_sem);
+			someone_dead(phil, current);
+			sem_post(phil->semaph->dead_sem);
+			return (NULL);
+		}
+		ft_mysleep(1);
+	}
+	return (NULL);
+}
+
+void		*symposium(t_phil *phil)
+{
 	pthread_t	waiter;
 
-	phil = (t_phil *)args;
-	if ((pthread_create(&waiter, NULL, monitoring, phil)) != 0)
-		print_error("Thread create error!\n");
-	while (TRUE)
+	phil->last_eat_time = current_time();
+	pthread_create(&waiter, NULL, monitoring, phil);
+
+	while (phil->meals != phil->data->max_eat)
 	{
 		if (table(phil))
 			break ;

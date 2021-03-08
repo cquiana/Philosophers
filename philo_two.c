@@ -6,7 +6,7 @@
 /*   By: cquiana <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/01 19:57:18 by cquiana           #+#    #+#             */
-/*   Updated: 2021/03/07 11:28:16 by cquiana          ###   ########.fr       */
+/*   Updated: 2021/03/07 22:58:41 by cquiana          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -418,7 +418,5 @@ int		main(int ac, char **av)
 		print_error("Malloc error!\n");
 	start_dinning(&data, phil, &sem);
 	clear_after_dinning(phil);
-
-	// printf("%d %ld %d %d\n", data.count, data.die_time, data.eat_time, data.sleep_time);
 	return (0);
 }

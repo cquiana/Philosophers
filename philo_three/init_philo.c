@@ -5,29 +5,38 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: cquiana <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/03/07 22:31:10 by cquiana           #+#    #+#             */
-/*   Updated: 2021/03/08 19:06:24 by cquiana          ###   ########.fr       */
+/*   Created: 2021/03/08 19:04:03 by cquiana           #+#    #+#             */
+/*   Updated: 2021/03/08 19:07:07 by cquiana          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philo_two.h"
+#include "philo_three.h"
 
-static void	create_threads(t_phil *phil)
+static void	create_procces(t_phil *phil)
 {
 	int		i;
+	int		status;
 
 	i = 0;
 	while (i < phil->data->count)
 	{
-		phil[i].last_eat_time = current_time();
-		if ((pthread_create(&phil[i].thread, NULL, symposium, &phil[i])) != 0)
-			print_error("Thread create error!\n");
+		if ((phil[i].pid = fork()) == -1)
+		{
+			print_error("Fork error!\n");
+			return ;
+		}
+		else if (phil[i].pid == 0)
+		{
+			symposium(&phil[i]);
+			exit (0);
+		}
 		i++;
 	}
+	waitpid(-1, &status, 0);
 	i = 0;
 	while (i < phil->data->count)
 	{
-		pthread_join(phil[i].thread, NULL);
+		kill(phil[i].pid, SIGKILL);
 		i++;
 	}
 }
@@ -48,9 +57,6 @@ static int	init_semaphors(t_data *data, t_semaphore *sem)
 		return (1);
 	if ((sem->hands = sem_open("/hands_sem",
 		O_CREAT | O_EXCL, 0644, data->count / 2)) == SEM_FAILED)
-		return (1);
-	if ((sem->eat_sem = sem_open("/eat_sem",
-		O_CREAT | O_EXCL, 0644, 1)) == SEM_FAILED)
 		return (1);
 	if ((sem->dead_sem = sem_open("/dead_sem",
 		O_CREAT | O_EXCL, 0644, 1)) == SEM_FAILED)
@@ -84,5 +90,5 @@ void		start_dinning(t_data *data, t_phil *phil, t_semaphore *sem)
 	data->dead = 0;
 	data->total_eat = 0;
 	data->start_time = current_time();
-	create_threads(phil);
+	create_procces(phil);
 }

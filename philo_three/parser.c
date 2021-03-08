@@ -5,12 +5,12 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: cquiana <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/03/07 20:30:57 by cquiana           #+#    #+#             */
-/*   Updated: 2021/03/07 23:10:42 by cquiana          ###   ########.fr       */
+/*   Created: 2021/03/07 23:06:30 by cquiana           #+#    #+#             */
+/*   Updated: 2021/03/07 23:09:52 by cquiana          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philo_one.h"
+#include "philo_three.h"
 
 int			check_agrs(char **av)
 {

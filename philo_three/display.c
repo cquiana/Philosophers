@@ -5,14 +5,14 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: cquiana <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/03/07 22:43:24 by cquiana           #+#    #+#             */
-/*   Updated: 2021/03/07 22:55:09 by cquiana          ###   ########.fr       */
+/*   Created: 2021/03/08 19:10:00 by cquiana           #+#    #+#             */
+/*   Updated: 2021/03/08 19:11:57 by cquiana          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philo_two.h"
+#include "philo_three.h"
 
-int		check_dead(t_phil *phil, long time)
+int			check_dead(t_phil *phil, long time)
 {
 	long	diff;
 
@@ -27,21 +27,16 @@ int		check_dead(t_phil *phil, long time)
 	return (0);
 }
 
-int		check_max_eat(t_phil *phil)
+static void	reset_philo_status(t_phil *phil)
 {
-	if (phil->data->max_eat == -1)
-		return (0);
-	sem_wait(phil->semaph->eat_sem);
-	if (phil->data->total_eat == phil->data->count)
-	{
-		sem_post(phil->semaph->eat_sem);
-		return (1);
-	}
-	sem_post(phil->semaph->eat_sem);
-	return (0);
+	phil->status.fork = FALSE;
+	phil->status.eat = FALSE;
+	phil->status.sleep = FALSE;
+	phil->status.think = FALSE;
+	phil->status.dead = FALSE;
 }
 
-void	print_status(t_phil *phil, long time)
+static int	print_status(t_phil *phil, long time)
 {
 	long	diff;
 
@@ -58,27 +53,23 @@ void	print_status(t_phil *phil, long time)
 	if (phil->status.think)
 		printf("%10ld %d is thinking\n", diff, phil->id + 1);
 	if (phil->status.dead)
+	{
 		printf("%10ld %d is dead\n", diff, phil->id + 1);
+		return (1);
+	}
+	return (0);
 }
 
-void	reset_philo_status(t_phil *phil)
-{
-	phil->status.fork = FALSE;
-	phil->status.eat = FALSE;
-	phil->status.sleep = FALSE;
-	phil->status.think = FALSE;
-	phil->status.dead = FALSE;
-}
-
-int		display(t_phil *phil, long time)
+int			display(t_phil *phil, long time)
 {
 	sem_wait(phil->semaph->print_sem);
-	if ((!(phil->status.dead) && check_dead(phil, time)) || check_max_eat(phil))
+	if ((!(phil->status.dead) && check_dead(phil, time)))
 	{
 		sem_post(phil->semaph->print_sem);
 		return (1);
 	}
-	print_status(phil, time);
+	if (print_status(phil, time))
+		return (1);
 	reset_philo_status(phil);
 	sem_post(phil->semaph->print_sem);
 	return (0);
