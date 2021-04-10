@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: cquiana <marvin@42.fr>                     +#+  +:+       +#+         #
+#    By: cquiana <cquiana@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/03/07 22:58:59 by cquiana           #+#    #+#              #
-#    Updated: 2021/03/07 22:59:49 by cquiana          ###   ########.fr        #
+#    Updated: 2021/03/09 13:24:24 by cquiana          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -35,9 +35,11 @@ $(NAME): $(OBJ) $(HEADER) main.c
 
 clean:
 	@rm -f $(OBJ)
+	@echo "Object file deleted"
 
 fclean: clean
 	@rm -f $(NAME)
+	@echo "All file deleted"
 
 re: fclean all
 

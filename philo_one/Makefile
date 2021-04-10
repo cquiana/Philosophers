@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: cquiana <marvin@42.fr>                     +#+  +:+       +#+         #
+#    By: cquiana <cquiana@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/03/07 20:54:11 by cquiana           #+#    #+#              #
-#    Updated: 2021/03/07 21:57:52 by cquiana          ###   ########.fr        #
+#    Updated: 2021/03/09 12:54:03 by cquiana          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,7 +22,7 @@ SRCS	=	parser.c \
 
 OBJ	=	$(SRCS:.c=.o)
 
-FLAGS	=	-Wall -Wextra -Werror -pthread
+FLAGS	=	-Wall -Wextra -Werror -pthread -g
 
 %.o:%.c
 	gcc $(FLAGS) -c $< -o $@
@@ -34,9 +34,12 @@ $(NAME): $(OBJ) $(HEADER) main.c
 
 clean:
 	@rm -f $(OBJ)
+	@echo "Object file deleted"
 
 fclean: clean
 	@rm -f $(NAME)
+	@echo "All file deleted"
+
 
 re: fclean all
 
