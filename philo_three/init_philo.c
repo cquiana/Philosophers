@@ -6,7 +6,7 @@
 /*   By: cquiana <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/08 19:04:03 by cquiana           #+#    #+#             */
-/*   Updated: 2021/04/10 09:30:13 by cquiana          ###   ########.fr       */
+/*   Updated: 2021/04/10 10:06:27 by cquiana          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,16 +32,43 @@ static void	create_procces(t_phil *phil)
 		}
 		i++;
 	}
-	waitpid(-1, &status, WUNTRACED);
-	i = 0;
-	// if (status == 256)
-	printf("status = %d\n", status);
+	int full;
+	int j;
 
-	while (i < phil->data->count)
+	full = 0;
+	while (TRUE)
 	{
-		kill(phil[i].pid, SIGINT);
-		i++;
+		j = 0;
+		while (j < phil->data->count)
+		{
+			// status = -1;
+			waitpid(-1, &status, WUNTRACED);
+				if (status == 0 || status == 512)
+				{
+					if (status == 0)
+						if(++full != phil->data->count)
+							continue;
+					break;
+				}
+			j++;
+		}
+		printf("status = %d\n", status);
+		if (status == -1 || full == phil->data->count)
+		{
+			i = 0;
+			while (i < phil->data->count)
+			{
+				kill(phil[i].pid, SIGKILL);
+				i++;
+			}
+		}
+
+
+		// if (status == 256)
+		/* code */
 	}
+
+
 }
 
 static void	set_philo_status(t_phil *phil, int i)
