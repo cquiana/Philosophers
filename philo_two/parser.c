@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   parser.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cquiana <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: cquiana <cquiana@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/07 22:25:42 by cquiana           #+#    #+#             */
-/*   Updated: 2021/03/07 23:10:06 by cquiana          ###   ########.fr       */
+/*   Updated: 2021/04/10 15:48:13 by cquiana          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo_two.h"
 
-int			check_agrs(char **av)
+int	check_agrs(char **av)
 {
 	int	i;
 	int	j;
@@ -54,7 +54,7 @@ static int	validate_args(t_data *data)
 	return (1);
 }
 
-int			parse_args(t_data *data, char **av)
+int	parse_args(t_data *data, char **av)
 {
 	data->count = ft_atoi(av[1]);
 	data->die_time = (long)ft_atoi(av[2]);

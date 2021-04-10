@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   dinning.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cquiana <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: cquiana <cquiana@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/07 22:29:35 by cquiana           #+#    #+#             */
-/*   Updated: 2021/03/07 22:56:28 by cquiana          ###   ########.fr       */
+/*   Updated: 2021/04/10 15:55:17 by cquiana          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,7 @@ static int	table(t_phil *phil)
 	return (0);
 }
 
-void		*symposium(void *args)
+void	*symposium(void *args)
 {
 	t_phil		*phil;
 	pthread_t	waiter;

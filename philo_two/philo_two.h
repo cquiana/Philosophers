@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philo_two.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cquiana <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: cquiana <cquiana@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/07 20:20:49 by cquiana           #+#    #+#             */
-/*   Updated: 2021/03/07 22:57:45 by cquiana          ###   ########.fr       */
+/*   Updated: 2021/04/10 15:56:10 by cquiana          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@
 # define TRUE	1
 # define FALSE	0
 
-typedef struct		s_data
+typedef struct s_data
 {
 	int				count;
 	long			die_time;
@@ -35,7 +35,7 @@ typedef struct		s_data
 	long			start_time;
 }					t_data;
 
-typedef struct		s_semaphore
+typedef struct s_semaphore
 {
 	sem_t			*fork;
 	sem_t			*hands;
@@ -44,7 +44,7 @@ typedef struct		s_semaphore
 	sem_t			*print_sem;
 }					t_semaphore;
 
-typedef struct		s_status
+typedef struct s_status
 {
 	int				fork;
 	int				eat;
@@ -53,7 +53,7 @@ typedef struct		s_status
 	int				dead;
 }					t_status;
 
-typedef struct		s_philo
+typedef struct s_philo
 {
 	int				id;
 	int				left_fork;

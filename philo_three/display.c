@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   display.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cquiana <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: cquiana <cquiana@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/08 19:10:00 by cquiana           #+#    #+#             */
-/*   Updated: 2021/04/10 09:13:44 by cquiana          ###   ########.fr       */
+/*   Updated: 2021/04/10 15:33:58 by cquiana          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo_three.h"
 
-int			check_dead(t_phil *phil, long time)
+int	check_dead(t_phil *phil, long time)
 {
 	long	diff;
 
@@ -60,7 +60,7 @@ static int	print_status(t_phil *phil, long time)
 	return (0);
 }
 
-int			display(t_phil *phil, long time)
+int	display(t_phil *phil, long time)
 {
 	sem_wait(phil->semaph->print_sem);
 	if ((!(phil->status.dead) && check_dead(phil, time)))

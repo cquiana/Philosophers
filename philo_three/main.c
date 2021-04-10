@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cquiana <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: cquiana <cquiana@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/07 20:22:37 by cquiana           #+#    #+#             */
-/*   Updated: 2021/03/08 19:13:36 by cquiana          ###   ########.fr       */
+/*   Updated: 2021/04/10 14:18:24 by cquiana          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo_three.h"
 
-int		main(int ac, char **av)
+int	main(int ac, char **av)
 {
 	t_data		data;
 	t_phil		*phil;
@@ -24,7 +24,8 @@ int		main(int ac, char **av)
 		return (print_error("Arguments must be positive digit!\n"));
 	if (!(parse_args(&data, av)))
 		return (print_error("Incorrect arguments!\n"));
-	if (!(phil = malloc(sizeof(t_phil) * data.count)))
+	phil = malloc(sizeof(t_phil) * data.count);
+	if (!phil)
 		return (print_error("Malloc error!\n"));
 	start_dinning(&data, phil, &sem);
 	clear_after_dinning(phil, &sem);

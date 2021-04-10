@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   init_philo.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cquiana <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: cquiana <cquiana@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/07 22:31:10 by cquiana           #+#    #+#             */
-/*   Updated: 2021/03/08 19:06:24 by cquiana          ###   ########.fr       */
+/*   Updated: 2021/04/10 15:54:54 by cquiana          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,25 +43,20 @@ static void	set_philo_status(t_phil *phil, int i)
 
 static int	init_semaphors(t_data *data, t_semaphore *sem)
 {
-	if ((sem->fork = sem_open("/forks_sem",
-		O_CREAT | O_EXCL, 0644, data->count)) == SEM_FAILED)
-		return (1);
-	if ((sem->hands = sem_open("/hands_sem",
-		O_CREAT | O_EXCL, 0644, data->count / 2)) == SEM_FAILED)
-		return (1);
-	if ((sem->eat_sem = sem_open("/eat_sem",
-		O_CREAT | O_EXCL, 0644, 1)) == SEM_FAILED)
-		return (1);
-	if ((sem->dead_sem = sem_open("/dead_sem",
-		O_CREAT | O_EXCL, 0644, 1)) == SEM_FAILED)
-		return (1);
-	if ((sem->print_sem = sem_open("/print_sem",
-		O_CREAT | O_EXCL, 0644, 1)) == SEM_FAILED)
+	sem->fork = sem_open("/forks_sem", O_CREAT | O_EXCL, 0644, data->count);
+	sem->hands = sem_open("/hands_sem", O_CREAT | O_EXCL,
+			0644, data->count / 2);
+	sem->dead_sem = sem_open("/dead_sem", O_CREAT | O_EXCL, 0644, 1);
+	sem->eat_sem = sem_open("/eat_sem", O_CREAT | O_EXCL, 0644, 1);
+	sem->print_sem = sem_open("/print_sem", O_CREAT | O_EXCL, 0644, 1);
+	if (sem->print_sem == SEM_FAILED || sem->fork == SEM_FAILED
+		|| sem->dead_sem == SEM_FAILED || sem->print_sem == SEM_FAILED
+		|| sem->eat_sem == SEM_FAILED)
 		return (1);
 	return (0);
 }
 
-void		start_dinning(t_data *data, t_phil *phil, t_semaphore *sem)
+void	start_dinning(t_data *data, t_phil *phil, t_semaphore *sem)
 {
 	int		i;
 

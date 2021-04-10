@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   display.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cquiana <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: cquiana <cquiana@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/07 20:47:35 by cquiana           #+#    #+#             */
-/*   Updated: 2021/03/07 21:37:16 by cquiana          ###   ########.fr       */
+/*   Updated: 2021/04/10 15:41:47 by cquiana          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo_one.h"
 
-int			check_dead(t_phil *phil, long time)
+int	check_dead(t_phil *phil, long time)
 {
 	long	diff;
 
@@ -27,7 +27,7 @@ int			check_dead(t_phil *phil, long time)
 	return (0);
 }
 
-int			check_max_eat(t_phil *phil)
+int	check_max_eat(t_phil *phil)
 {
 	if (phil->data->max_eat == -1)
 		return (0);
@@ -70,7 +70,7 @@ static void	reset_philo_status(t_phil *phil)
 	phil->status.dead = FALSE;
 }
 
-int			display(t_phil *phil, long time)
+int	display(t_phil *phil, long time)
 {
 	pthread_mutex_lock(&phil->data->print_mutex);
 	if ((!(phil->status.dead) && check_dead(phil, time)) || check_max_eat(phil))

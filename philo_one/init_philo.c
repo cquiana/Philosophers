@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   init_philo.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cquiana <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: cquiana <cquiana@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/07 20:33:46 by cquiana           #+#    #+#             */
-/*   Updated: 2021/03/07 22:11:25 by cquiana          ###   ########.fr       */
+/*   Updated: 2021/04/10 15:42:53 by cquiana          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,14 +43,15 @@ static void	set_philo_status(t_phil *phil, int i)
 
 static void	init_mutex(t_data *data)
 {
-	if (!(data->forks = malloc(sizeof(pthread_mutex_t) * data->count)))
+	data->forks = malloc(sizeof(pthread_mutex_t) * data->count);
+	if (!data->forks)
 		print_error("Malloc error!\n");
 	pthread_mutex_init(&data->dead_mutex, NULL);
 	pthread_mutex_init(&data->eat_mutex, NULL);
 	pthread_mutex_init(&data->print_mutex, NULL);
 }
 
-void		start_dinning(t_data *data, t_phil *phil)
+void	start_dinning(t_data *data, t_phil *phil)
 {
 	int		i;
 
@@ -76,7 +77,7 @@ void		start_dinning(t_data *data, t_phil *phil)
 	create_threads(phil);
 }
 
-void		clear_after_dinning(t_data *data, t_phil *phil)
+void	clear_after_dinning(t_data *data, t_phil *phil)
 {
 	int		i;
 

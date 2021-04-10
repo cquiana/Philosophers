@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   dinning.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cquiana <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: cquiana <cquiana@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/08 19:01:38 by cquiana           #+#    #+#             */
-/*   Updated: 2021/04/10 09:20:11 by cquiana          ###   ########.fr       */
+/*   Updated: 2021/04/10 15:34:21 by cquiana          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,7 +75,7 @@ static void	*monitoring(void *agrs)
 	return (NULL);
 }
 
-void		*symposium(t_phil *phil)
+void	*symposium(t_phil *phil)
 {
 	pthread_t	waiter;
 

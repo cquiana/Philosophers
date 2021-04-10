@@ -3,24 +3,65 @@
 /*                                                        :::      ::::::::   */
 /*   init_philo.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cquiana <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: cquiana <cquiana@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/08 19:04:03 by cquiana           #+#    #+#             */
-/*   Updated: 2021/04/10 10:06:27 by cquiana          ###   ########.fr       */
+/*   Updated: 2021/04/10 15:52:07 by cquiana          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo_three.h"
 
-static void	create_procces(t_phil *phil)
+void	ft_kill(t_phil *phil)
 {
-	int		i;
-	int		status;
+	int	i;
 
 	i = 0;
 	while (i < phil->data->count)
 	{
-		if ((phil[i].pid = fork()) == -1)
+		kill(phil[i].pid, SIGKILL);
+		i++;
+	}
+}
+
+void	wait_and_kill(t_phil *phil)
+{
+	int	full;
+	int	i;
+	int	status;
+
+	full = 0;
+	while (TRUE)
+	{
+		i = 0;
+		while (i++ < phil->data->count)
+		{
+			status = -1;
+			waitpid(-1, &status, 0);
+			if (status == 256)
+				break ;
+			if (status == 512)
+			{
+				if (++full != phil->data->count)
+					continue ;
+			}
+		}
+		if (status == 512 || full == phil->data->count || status == 256)
+			ft_kill(phil);
+		if (status == -1)
+			break ;
+	}
+}
+
+static void	create_procces(t_phil *phil)
+{
+	int		i;
+
+	i = 0;
+	while (i < phil->data->count)
+	{
+		phil[i].pid = fork();
+		if (phil[i].pid == -1)
 		{
 			print_error("Fork error!\n");
 			return ;
@@ -32,72 +73,23 @@ static void	create_procces(t_phil *phil)
 		}
 		i++;
 	}
-	int full;
-	int j;
-
-	full = 0;
-	while (TRUE)
-	{
-		j = 0;
-		while (j < phil->data->count)
-		{
-			// status = -1;
-			waitpid(-1, &status, WUNTRACED);
-				if (status == 0 || status == 512)
-				{
-					if (status == 0)
-						if(++full != phil->data->count)
-							continue;
-					break;
-				}
-			j++;
-		}
-		printf("status = %d\n", status);
-		if (status == -1 || full == phil->data->count)
-		{
-			i = 0;
-			while (i < phil->data->count)
-			{
-				kill(phil[i].pid, SIGKILL);
-				i++;
-			}
-		}
-
-
-		// if (status == 256)
-		/* code */
-	}
-
-
-}
-
-static void	set_philo_status(t_phil *phil, int i)
-{
-	phil[i].status.fork = FALSE;
-	phil[i].status.eat = FALSE;
-	phil[i].status.sleep = FALSE;
-	phil[i].status.think = FALSE;
-	phil[i].status.dead = FALSE;
+	wait_and_kill(phil);
 }
 
 static int	init_semaphors(t_data *data, t_semaphore *sem)
 {
-	if ((sem->fork = sem_open("/forks_sem",
-		O_CREAT | O_EXCL, 0644, data->count)) == SEM_FAILED)
-		return (1);
-	if ((sem->hands = sem_open("/hands_sem",
-		O_CREAT | O_EXCL, 0644, data->count / 2)) == SEM_FAILED)
-		return (1);
-	if ((sem->dead_sem = sem_open("/dead_sem",
-		O_CREAT | O_EXCL, 0644, 1)) == SEM_FAILED)
-		return (1);
-	if ((sem->print_sem = sem_open("/print_sem",
-		O_CREAT | O_EXCL, 0644, 1)) == SEM_FAILED)
+	sem->fork = sem_open("/forks_sem", O_CREAT | O_EXCL, 0644, data->count);
+	sem->hands = sem_open("/hands_sem", O_CREAT | O_EXCL,
+			0644, data->count / 2);
+	sem->dead_sem = sem_open("/dead_sem", O_CREAT | O_EXCL, 0644, 1);
+	sem->print_sem = sem_open("/print_sem", O_CREAT | O_EXCL, 0644, 1);
+	if (sem->print_sem == SEM_FAILED || sem->fork == SEM_FAILED
+		|| sem->dead_sem == SEM_FAILED || sem->print_sem == SEM_FAILED)
 		return (1);
 	return (0);
 }
 
-void		start_dinning(t_data *data, t_phil *phil, t_semaphore *sem)
+void	start_dinning(t_data *data, t_phil *phil, t_semaphore *sem)
 {
 	int		i;
 

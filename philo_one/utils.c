@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   utils.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cquiana <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: cquiana <cquiana@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/07 20:27:19 by cquiana           #+#    #+#             */
-/*   Updated: 2021/03/07 21:34:05 by cquiana          ###   ########.fr       */
+/*   Updated: 2021/04/10 15:44:16 by cquiana          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo_one.h"
 
-int		ft_isdigit(int c)
+int	ft_isdigit(int c)
 {
 	if ((c >= '0') && (c <= '9'))
 		return (1);
@@ -20,7 +20,7 @@ int		ft_isdigit(int c)
 		return (0);
 }
 
-int		ft_atoi(const char *str)
+int	ft_atoi(const char *str)
 {
 	int	i;
 	int	sign;
@@ -64,7 +64,7 @@ void	ft_mysleep(long time)
 		usleep(100);
 }
 
-int		print_error(char *str)
+int	print_error(char *str)
 {
 	printf("%s", str);
 	return (1);

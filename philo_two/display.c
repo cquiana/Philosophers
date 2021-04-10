@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   display.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cquiana <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: cquiana <cquiana@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/07 22:43:24 by cquiana           #+#    #+#             */
-/*   Updated: 2021/03/07 22:55:09 by cquiana          ###   ########.fr       */
+/*   Updated: 2021/04/10 15:55:32 by cquiana          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo_two.h"
 
-int		check_dead(t_phil *phil, long time)
+int	check_dead(t_phil *phil, long time)
 {
 	long	diff;
 
@@ -27,7 +27,7 @@ int		check_dead(t_phil *phil, long time)
 	return (0);
 }
 
-int		check_max_eat(t_phil *phil)
+int	check_max_eat(t_phil *phil)
 {
 	if (phil->data->max_eat == -1)
 		return (0);
@@ -70,7 +70,7 @@ void	reset_philo_status(t_phil *phil)
 	phil->status.dead = FALSE;
 }
 
-int		display(t_phil *phil, long time)
+int	display(t_phil *phil, long time)
 {
 	sem_wait(phil->semaph->print_sem);
 	if ((!(phil->status.dead) && check_dead(phil, time)) || check_max_eat(phil))
