@@ -6,7 +6,7 @@
 /*   By: cquiana <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/08 19:01:38 by cquiana           #+#    #+#             */
-/*   Updated: 2021/03/08 19:18:40 by cquiana          ###   ########.fr       */
+/*   Updated: 2021/04/10 09:20:11 by cquiana          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,16 @@ static void	someone_dead(t_phil *phil, long time)
 		display(phil, time);
 		exit(1);
 	}
+}
+
+static int	check_total_eat(t_phil *phil)
+{
+	if (phil->data->max_eat != -1 && phil->meals == phil->data->max_eat)
+	{
+		phil->data->total_eat++;
+		return (1);
+	}
+	return (0);
 }
 
 static int	table(t_phil *phil)
@@ -39,6 +49,8 @@ static int	table(t_phil *phil)
 	sem_post(phil->semaph->fork);
 	sem_post(phil->semaph->fork);
 	phil->meals++;
+	if (check_total_eat(phil))
+		exit(2);
 	return (0);
 }
 
@@ -48,7 +60,7 @@ static void	*monitoring(void *agrs)
 	long	current;
 
 	phil = (t_phil *)agrs;
-	while (phil->meals != phil->data->max_eat)
+	while (TRUE)
 	{
 		current = current_time();
 		if (current - phil->last_eat_time > phil->data->die_time)
@@ -69,7 +81,7 @@ void		*symposium(t_phil *phil)
 
 	phil->last_eat_time = current_time();
 	pthread_create(&waiter, NULL, monitoring, phil);
-	while (phil->meals != phil->data->max_eat)
+	while (TRUE)
 	{
 		if (table(phil))
 			break ;

@@ -6,7 +6,7 @@
 /*   By: cquiana <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/08 19:04:03 by cquiana           #+#    #+#             */
-/*   Updated: 2021/03/08 19:18:24 by cquiana          ###   ########.fr       */
+/*   Updated: 2021/04/10 09:30:13 by cquiana          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,11 +32,14 @@ static void	create_procces(t_phil *phil)
 		}
 		i++;
 	}
-	waitpid(-1, &status, 0);
+	waitpid(-1, &status, WUNTRACED);
 	i = 0;
+	// if (status == 256)
+	printf("status = %d\n", status);
+
 	while (i < phil->data->count)
 	{
-		kill(phil[i].pid, SIGKILL);
+		kill(phil[i].pid, SIGINT);
 		i++;
 	}
 }
